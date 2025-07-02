@@ -85,7 +85,7 @@ def main():
         model = GCNAnomalyDetector(input_dim=10, hidden_dim=64, output_dim=2).to(device)
 
         # Load trained weights
-        model_path = "best_model_fold3.pt"
+        model_path = "best_model_fold0.pt"  # Or 'best_model_fold0.pt'
         if os.path.exists(model_path):
             model.load_state_dict(torch.load(model_path, map_location=device))
             print(f"Model loaded from {model_path}")

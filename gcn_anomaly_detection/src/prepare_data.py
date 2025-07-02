@@ -113,15 +113,25 @@ def preprocess_data(df, scaler=None):
     device_ids = df["Device_ID"].copy() if "Device_ID" in df.columns else None
     return X_scaled, y, device_ids, scaler
 
+def get_anomaly_counts_from_dfs(train_df, val_df, test_df, label_col="Anomaly"):
+    """Utility to compute normal and anomaly counts from DataFrames."""
+    def count(df, value):
+        return (df[label_col] == value).sum()
+    train_normal = count(train_df, 0)
+    train_anomaly = count(train_df, 1)
+    val_normal = count(val_df, 0)
+    val_anomaly = count(val_df, 1)
+    test_normal = count(test_df, 0)
+    test_anomaly = count(test_df, 1)
+    return train_normal, train_anomaly, val_normal, val_anomaly, test_normal, test_anomaly
 
-# Example usage (replace with your actual counts):
+# Example usage with real data
 if __name__ == "__main__":
-    # Sample data - replace with your actual counts
-    visualize_anomaly_distribution(
-        train_normal=1330,
-        train_anomaly=70,
-        val_normal=285,
-        val_anomaly=15,
-        test_normal=285,
-        test_anomaly=15,
-    )
+    # Replace 'your_data.csv' with your actual data file path
+    data_file = "data/synthetic_iot_dataset.csv"
+    try:
+        train_df, val_df, test_df = load_and_split_data(data_file)
+        counts = get_anomaly_counts_from_dfs(train_df, val_df, test_df)
+        visualize_anomaly_distribution(*counts)
+    except FileNotFoundError:
+        print(f"Data file '{data_file}' not found. Please update the path and try again.")
