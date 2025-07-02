@@ -14,12 +14,7 @@ models/
 *.pth
 *.pt
 
-# Data files (ignore all except small sample/test data)
-data/
-!data/*.txt
-!data/*.csv
-!data/mote_locs.txt
-!data/cleaned_sensor_data.csv
+
 
 # Results and outputs
 results/
