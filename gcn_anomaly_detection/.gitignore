@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+myenv/
+.env/
+.envrc
+
+# Model files and checkpoints
+models/
+*.pth
+*.pt
+
+# Data files (ignore all except small sample/test data)
+data/
+!data/*.txt
+!data/*.csv
+!data/mote_locs.txt
+!data/cleaned_sensor_data.csv
+
+# Results and outputs
+results/
+*.log
+
+# Notebooks
+notebooks/
+*.ipynb
+.ipynb_checkpoints/
+
+# IDE and editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# VS Code
+.vscode/settings.json
