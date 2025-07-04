@@ -75,17 +75,16 @@ def main():
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device: {device}")
 
-        # Load test dataset
-        test_dataset = TestDataset()
-        test_loader = DataLoader(
-            test_dataset, batch_size=1
-        )  # Process one graph at a time
+        # Load the real test graph
+        real_test_graph = torch.load("data/processed/test_graph.pt", weights_only=False)
+        print(real_test_graph.x.shape)
+        test_loader = DataLoader([real_test_graph], batch_size=1)
 
         # Initialize model
-        model = GCNAnomalyDetector(input_dim=10, hidden_dim=64, output_dim=2).to(device)
+        model = GCNAnomalyDetector(input_dim=3, hidden_dim=64, output_dim=2).to(device)
 
         # Load trained weights
-        model_path = "best_model_fold0.pt"  # Or 'best_model_fold0.pt'
+        model_path = "best_model.pt" 
         if os.path.exists(model_path):
             model.load_state_dict(torch.load(model_path, map_location=device))
             print(f"Model loaded from {model_path}")
