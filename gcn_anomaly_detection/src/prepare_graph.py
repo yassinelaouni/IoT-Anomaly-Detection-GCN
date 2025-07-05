@@ -6,7 +6,7 @@ import os
 from prepare_data import load_and_split_data, preprocess_data
 
 
-def build_graph_for_split(features, labels, k_neighbors=3):
+def build_graph_for_split(features, labels, k_neighbors=8):
     """Build graph for a single split"""
     x = torch.tensor(features, dtype=torch.float)
     y = (
@@ -73,13 +73,13 @@ if __name__ == "__main__":
 
     if train_df is not None:
         # Preprocess and build graphs
-        X_train, y_train, train_ids, scaler = preprocess_data(train_df)
+        X_train, y_train, scaler = preprocess_data(train_df)
         train_graph = build_graph_for_split(X_train, y_train)
 
-        X_val, y_val, val_ids, _ = preprocess_data(val_df, scaler)
+        X_val, y_val, _ = preprocess_data(val_df, scaler)
         val_graph = build_graph_for_split(X_val, y_val)
 
-        X_test, y_test, test_ids, _ = preprocess_data(test_df, scaler)
+        X_test, y_test, _ = preprocess_data(test_df, scaler)
         test_graph = build_graph_for_split(X_test, y_test)
 
         # Save individual graphs
