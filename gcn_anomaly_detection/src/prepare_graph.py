@@ -7,7 +7,7 @@ from prepare_data import load_and_split_data, preprocess_data
 
 
 def build_graph_for_split(features, labels, k_neighbors=8):
-    """Build graph for a single split"""
+    """Construire un graphe pour un seul ensemble de données (train/val/test)"""
     x = torch.tensor(features, dtype=torch.float)
     y = (
         torch.tensor(labels.values, dtype=torch.long)
@@ -15,43 +15,43 @@ def build_graph_for_split(features, labels, k_neighbors=8):
         else torch.tensor(labels, dtype=torch.long)
     )
 
-    # KNN graph construction
+    # Construction du graphe KNN
     if len(features) > k_neighbors:
         nbrs = NearestNeighbors(n_neighbors=k_neighbors + 1).fit(features)
         _, indices = nbrs.kneighbors(features)
 
         edge_list = []
         for i in range(len(features)):
-            for j in indices[i, 1:]:  # Skip self-connection
+            for j in indices[i, 1:]:  # Ignorer l'auto-connexion
                 edge_list.append([i, j])
         edge_index = torch.tensor(edge_list, dtype=torch.long).t().contiguous()
     else:
-        # Fallback for small graphs
+        # Solution de repli pour les petits graphes
         edge_index = torch.combinations(torch.arange(len(features)), 2).t().contiguous()
-        edge_index = torch.cat([edge_index, edge_index.flip(0)], dim=1)  # Undirected
+        edge_index = torch.cat([edge_index, edge_index.flip(0)], dim=1)  # Non dirigé
 
     return Data(x=x, edge_index=edge_index, y=y)
 
 
 def save_graphs(train_graph, val_graph, test_graph, output_dir="data/processed"):
-    """Save all split graphs"""
+    """Sauvegarder tous les graphes séparés"""
     os.makedirs(output_dir, exist_ok=True)
     torch.save(train_graph, os.path.join(output_dir, "train_graph.pt"))
     torch.save(val_graph, os.path.join(output_dir, "val_graph.pt"))
     torch.save(test_graph, os.path.join(output_dir, "test_graph.pt"))
-    print(f"Graphs saved to {output_dir}")
+    print(f"Graphes sauvegardés dans {output_dir}")
 
 
 def combine_graphs(train_graph, val_graph, test_graph):
-    """Combine all graphs into one with proper indices"""
+    """Combiner tous les graphes en un seul avec des indices appropriés"""
     n_train = train_graph.x.shape[0]
     n_val = val_graph.x.shape[0]
 
-    # Adjust indices
+    # Ajuster les indices
     val_edge_index = val_graph.edge_index + n_train
     test_edge_index = test_graph.edge_index + n_train + n_val
 
-    # Combine everything
+    # Combiner tout
     combined_graph = Data(
         x=torch.cat([train_graph.x, val_graph.x, test_graph.x], dim=0),
         edge_index=torch.cat(
@@ -68,11 +68,12 @@ def combine_graphs(train_graph, val_graph, test_graph):
 
 
 if __name__ == "__main__":
+    # Chemin vers le fichier de données
     data_path = "data/synthetic_iot_dataset.csv"
     train_df, val_df, test_df = load_and_split_data(data_path)
 
     if train_df is not None:
-        # Preprocess and build graphs
+        # Prétraiter et construire les graphes
         X_train, y_train, scaler = preprocess_data(train_df)
         train_graph = build_graph_for_split(X_train, y_train)
 
@@ -82,10 +83,10 @@ if __name__ == "__main__":
         X_test, y_test, _ = preprocess_data(test_df, scaler)
         test_graph = build_graph_for_split(X_test, y_test)
 
-        # Save individual graphs
+        # Sauvegarder les graphes individuels
         save_graphs(train_graph, val_graph, test_graph)
 
-        # Optional: Combine into one graph with masks
+        # Optionnel: Combiner en un seul graphe avec des masques
         combined_graph = combine_graphs(train_graph, val_graph, test_graph)
         torch.save(combined_graph, "data/processed/combined_graph.pt")
-        print("Combined graph saved with train/val/test masks")
+        print("Graphe combiné sauvegardé avec les masques train/val/test")
